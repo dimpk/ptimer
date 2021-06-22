@@ -1,15 +1,14 @@
 /*/	
- *		ptimer: main.c 
+ *    ptimer: main.c
  *
- *		Created by dimpk
+ *    Created by dimpk
 /*/
-
 
 #include <stdio.h>
 #include <signal.h>
-#include <math.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "notifications.h"
 
 static const int p_session = 50 * 60;	// default session duration
 static const int p_break = 10 * 60;		// default break duration
@@ -59,7 +58,10 @@ void session_break_loop(int ssn_drtn, int brk_drtn, int num_ssn)
 			sleep(1);
 		}
 		printf("\n\n");
-		
+
+		notification_show("Session is finished");
+		printf("\a\r");
+
 		if (i != num_ssn) {
 			printf("\033[1;32mSession is finished. This is extra time.\033[0m\n"	
 			       "Type (C)ontinue to start a break: ");
@@ -67,8 +69,6 @@ void session_break_loop(int ssn_drtn, int brk_drtn, int num_ssn)
 				if (c == 'C' || c == 'c')
 					break;
 			putchar('\n');
-
-//			printf("\a");
 
 			printf("\033[1;36mBreak %d/%d. Duration: %d minute(s). "
 			       "Take a rest!\033[0m\n\n", i, num_ssn - 1, brk_drtn / 60);
@@ -82,6 +82,9 @@ void session_break_loop(int ssn_drtn, int brk_drtn, int num_ssn)
 			}
 			printf("\n\n");
 
+			notification_show("Break is finished");
+			printf("\a\r");
+
 			printf("\033[1;36mBreak is finished. This is extra time.\033[0m\n"	
 			       "Type (C)ontinue to start a session: ");
 			while ((c = getchar()) != -1)
@@ -89,7 +92,7 @@ void session_break_loop(int ssn_drtn, int brk_drtn, int num_ssn)
 					break;
 			putchar('\n');
 		} else {
-			printf("\033[1;31mAll sessions are finished. Great job!\033[0m\n");
+			printf("\033[1;32mAll sessions are finished. Great job!\033[0m\n");
 		}
 	}
 }
@@ -109,26 +112,30 @@ int main(int argc, char **argv)
 
 	while ((c = getopt(argc, argv, "s:b:n:")) != -1) {
 		switch (c) {
-			case 's':
-				ssn_drtn = atoi(optarg) * 60;
-				if (ssn_drtn <= 0) {
-					fprintf(stderr, "\033[1;31mError:\033[0m option '-c' has wrong argument\n");
-					exit(1);
-				}
-				break;
-			case 'b':
-				brk_drtn = atoi(optarg) * 60;
-				if (brk_drtn <= 0) {
-					fprintf(stderr, "\033[1;31mError:\033[0m option '-b' has wrong argument\n");
-					exit(2);
-				}
-				break;
-			case 'n':
-				num_ssn = atoi(optarg);
-				break;
-			case '?':
-				fprintf(stderr, "\033[1;31mError:\033[0m unrecognized options\n");
+		case 's':
+			ssn_drtn = atoi(optarg) * 60;
+			if (ssn_drtn <= 0) {
+				fprintf(stderr, "\033[1;31mError:\033[0m option '-c' has wrong argument\n");
+				exit(1);
+			}
+			break;
+		case 'b':
+			brk_drtn = atoi(optarg) * 60;
+			if (brk_drtn <= 0) {
+				fprintf(stderr, "\033[1;31mError:\033[0m option '-b' has wrong argument\n");
+				exit(2);
+			}
+			break;
+		case 'n':
+			num_ssn = atoi(optarg);
+			if (num_ssn <= 0) {
+				fprintf(stderr, "\033[1;31mError:\033[0m option '-n' has wrong argument\n");
 				exit(3);
+			}
+			break;
+		case '?':
+			fprintf(stderr, "\033[1;31mError:\033[0m unrecognized options\n");
+			exit(4);
 		};
 	};
 

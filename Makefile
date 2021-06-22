@@ -1,12 +1,17 @@
 #
-#	Makefile for ptimer
+#    Makefile for ptimer
 #
-#	Created by dimpk
+#    Created by dimpk
 #
-
 
 CFLAGS = -g -Wall
+PKGCONFIG = pkg-config --cflags -libs
 
-ptimer: main.c
-	$(CC) $(CFLAGS) $^ -o $@
+src/notifications.o: src/notifications.c src/notifications.h
+	$(CC) $(CFLAGS) -c $< `$(PKGCONFIG) glib-2.0 gdk-pixbuf-2.0` -o $@
 
+ptimer: src/main.c src/notifications.o
+	$(CC) $(CFLAGS) -lnotify $^ -o $@
+
+clean:
+	rm -f src/*.o ptimer
