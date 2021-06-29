@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <math.h>
 #include <stdlib.h>
 #include "notifications.h"
 
@@ -28,7 +29,7 @@ void print_state(int time_left, double percent, double *cur_percent)
 
 	printf("\r");
 	*cur_percent += percent;
-	fragments = (int)*cur_percent / p_divider;
+	fragments = round(*cur_percent) / p_divider;
 
 	putchar('[');
 	for (int j = 0; j < fragments; j++)
@@ -37,7 +38,7 @@ void print_state(int time_left, double percent, double *cur_percent)
 		putchar('-');
 	putchar(']');
 
-	printf(" %d%% - %d seconds left", (int)*cur_percent, time_left);
+	printf(" %d%% - %d seconds left", (int)round(*cur_percent), time_left);
 	fflush(stdout);
 }
 
